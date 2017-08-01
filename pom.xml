@@ -25,8 +25,17 @@
         <!-- ASM -->
         <dependency>
             <groupId>org.ow2.asm</groupId>
-            <artifactId>asm-all</artifactId>
+            <!-- Debug - so that generics information is not stripped -->
+            <artifactId>asm-debug-all</artifactId>
             <version>5.2</version>
+        </dependency>
+
+        <!-- JUnit -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.12</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
