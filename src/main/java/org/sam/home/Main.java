@@ -8,6 +8,8 @@ import org.objectweb.asm.tree.MethodNode;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.*;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -22,29 +24,28 @@ public class Main {
             return;
         }
 
-        for (String fileName: args) {
-            try (final FileInputStream fis = new FileInputStream(fileName)) {
-                final List<NullCompareInst> instrs;
-                try {
-                    instrs = detect(fis);
-                } catch (IOException ex) {
-                    System.err.println("Can't read file: " + fileName);
-                    continue;
-                }
-
-                for (NullCompareInst instr: instrs) {
-                    System.out.println(instr.lineInfo());
-                }
-            } catch (FileNotFoundException ex) {
+        for (final String fileName: args) {
+            final Path file;
+            try {
+                file = Paths.get(fileName);
+            } catch (InvalidPathException ex) {
                 System.err.println("No such file: " + fileName);
-            } catch (IOException ex) {
-                System.err.println("Something gone wrong during file close: " + fileName);
-                ex.printStackTrace();
+                continue;
+            }
+
+            try (final InputStream fis = Files.newInputStream(file, StandardOpenOption.READ)) {
+                final List<NullCompareInst> insts = detect(fis);
+                for (final NullCompareInst inst: insts) {
+                    System.out.println(inst.lineInfo());
+                }
+            } catch (IOException | SecurityException | UnsupportedOperationException ex) {
+                System.err.println("Can't read file: " + fileName);
+                continue;
             }
         }
     }
 
-    public static List<NullCompareInst> detect(final FileInputStream fis) throws IOException {
+    public static List<NullCompareInst> detect(final InputStream fis) throws IOException {
         final ClassReader cr;
         try {
             cr = new ClassReader(fis);
@@ -55,10 +56,10 @@ public class Main {
         final ClassNode cn = new ClassNode(Opcodes.ASM5);
         cr.accept(cn, 0);
 
-        return potentialCompares(cn);
+        return findPotentialCompares(cn);
     }
 
-    public static List<NullCompareInst> potentialCompares(final ClassNode cn) {
+    public static List<NullCompareInst> findPotentialCompares(final ClassNode cn) {
         final List<NullCompareInst> potentialInstrs = new ArrayList<>();
         for (final MethodNode method: cn.methods) {
             for (Iterator<AbstractInsnNode> i = method.instructions.iterator(); i.hasNext();) {
