@@ -1,12 +1,11 @@
 package org.sam.home;
 
-import org.objectweb.asm.*;
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.*;
@@ -53,7 +52,7 @@ public class Main {
             throw new IOException("Can't read file");
         }
 
-        final ClassNode cn = new ClassNode(Opcodes.ASM5);
+        final ClassNode cn = new JSRClassInliner(Opcodes.ASM5);
         cr.accept(cn, 0);
 
         return findPotentialCompares(cn);
