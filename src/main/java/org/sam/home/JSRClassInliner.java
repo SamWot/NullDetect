@@ -6,7 +6,7 @@ import org.objectweb.asm.tree.ClassNode;
 
 public class JSRClassInliner extends ClassNode {
 
-    public JSRClassInliner(int api) {
+    public JSRClassInliner(final int api) {
         super(api);
     }
 
