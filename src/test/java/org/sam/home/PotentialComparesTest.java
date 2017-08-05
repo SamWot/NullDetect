@@ -1,7 +1,6 @@
 package org.sam.home;
 
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.objectweb.asm.ClassReader;
@@ -9,36 +8,35 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.*;
-import java.util.*;
-import java.util.stream.Stream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static org.sam.home.Utils.ExpectedExampleResults;
+import static org.sam.home.Utils.testResources;
 
 public class PotentialComparesTest {
     private static Path resourceDir;
-    private static Map<String, ExampleResults> examples;
-
-    private static class ExampleResults {
-        public String sourceFileName;
-        public List<Integer> lineNumbers;
-
-        public ExampleResults(final String sourceFileName, final List<Integer> lineNumbers) {
-            this.sourceFileName = sourceFileName;
-            this.lineNumbers = lineNumbers;
-        }
-    }
+    private static Map<String, Utils.ExpectedExampleResults> examples;
 
     @BeforeClass
     public static void setUpClass() {
         resourceDir = Paths.get("src/test/resources", "class");
         examples = new HashMap<>();
-        examples.put("Example1.class", new ExampleResults("Example1.java", Arrays.asList(5, 11, 17)));
-        examples.put("Example2.class", new ExampleResults("Example2.java", Arrays.asList(4, 5, 12)));
-        examples.put("Example3.class", new ExampleResults("Example3.java", Arrays.asList(10)));
-        examples.put("Example4.class", new ExampleResults("Example4.java", Arrays.asList(7)));
-        examples.put("Example5.class", new ExampleResults("Example5.java", Arrays.asList(5)));
+        examples.put("Example1.class",
+                new ExpectedExampleResults("Example1.java", Arrays.asList(5, 11, 17)));
+        examples.put("Example2.class",
+                new ExpectedExampleResults("Example2.java", Arrays.asList(4, 5, 12)));
+        examples.put("Example3.class",
+                new ExpectedExampleResults("Example3.java", Arrays.asList(10)));
+        examples.put("Example4.class",
+                new ExpectedExampleResults("Example4.java", Arrays.asList(7)));
+        examples.put("Example5.class",
+                new ExpectedExampleResults("Example5.java", Arrays.asList(5)));
         // TODO: Example6, ArrayList?
         // TODO: Add automatic compilation of examples sources.
     }
@@ -85,46 +83,21 @@ public class PotentialComparesTest {
         Assert.assertEquals("FooBar.java", potentialCompares.get(1).sourceFileName());
     }
 
-    private static List<NullCompareInst> findPotentials(final InputStream fis) throws IOException {
-        final ClassReader cr = new ClassReader(fis);
-        final ClassNode cn = new ClassNode(Opcodes.ASM5);
-        cr.accept(cn, 0);
-        return Main.findPotentialCompares(cn);
-    }
-
-    private static boolean validateInstList(final List<NullCompareInst> insts,
-                                            final String sourceFileName,
-                                            final List<Integer> lineNumbers) {
-        if (insts.size() != lineNumbers.size()) {
-            return false;
-        }
-        lineNumbers.sort(Comparator.comparingInt(Integer::intValue));
-        insts.sort(Comparator.comparingInt(NullCompareInst::lineNumber));
-        for (int i = 0; i < insts.size(); i++) {
-            final NullCompareInst inst = insts.get(i);
-            if (inst.lineNumber() != lineNumbers.get(i) ||
-                    !inst.sourceFileName().equals(sourceFileName)) {
-                return false;
-            }
-        }
-        return true;
-    }
-
     @Test
     public void Examples() throws IOException {
-        try (final Stream<Path> stream = Files.list(resourceDir)) {
-            stream.forEach(path -> {
-                String fileName = path.getFileName().toString();
-                if (examples.containsKey(fileName)) {
-                    ExampleResults expected = examples.get(fileName);
-                    try (final InputStream fis = Files.newInputStream(path, StandardOpenOption.READ)) {
-                        final List<NullCompareInst> insts = findPotentials(fis);
-                        Assert.assertTrue(validateInstList(insts, expected.sourceFileName, expected.lineNumbers));
+        testResources(
+                resourceDir,
+                examples,
+                (fis) -> {
+                    final ClassReader cr;
+                    try {
+                        cr = new ClassReader(fis);
                     } catch (IOException ex) {
-                        Assert.assertTrue(false);
+                        throw new RuntimeException(ex);
                     }
-                }
-            });
-        }
+                    final ClassNode cn = new ClassNode(Opcodes.ASM5);
+                    cr.accept(cn, 0);
+                    return Main.findPotentialCompares(cn);
+                });
     }
 }

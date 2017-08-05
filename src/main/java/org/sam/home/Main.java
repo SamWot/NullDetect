@@ -61,25 +61,7 @@ public class Main {
         final ClassNode cn = new JSRClassInliner(Opcodes.ASM5);
         cr.accept(cn, 0);
 
-        final List<NullCompareInst> compares = findPotentialCompares(cn);
-        final List<NullCompareInst> redundant = new ArrayList<>();
-
-        final Analyzer<NullValue> nullAnalyzer = new Analyzer<>(new NullInterpreter(Opcodes.ASM5));
-        for (final NullCompareInst compare: compares) {
-            // TODO: merge different NullCompareInstructions from same method, to minimize calls to analyze()
-            final Frame<NullValue>[] frames =
-                    nullAnalyzer.analyze(compare.getClassNode().name, compare.getMethodNode());
-            final Frame<NullValue> frame = frames[compare.instIndex()];
-            if (frame == null) {
-                continue;
-            }
-            final NullValue nullValue = frame.getStack(compare.getStackOperandIdx());
-            if (nullValue == NullValue.NULL || nullValue == NullValue.NOTNULL) {
-                redundant.add(compare);
-            }
-        }
-
-        return redundant;
+        return filterRedundant(findPotentialCompares(cn));
     }
 
     public static List<NullCompareInst> findPotentialCompares(final ClassNode cn) {
@@ -109,5 +91,26 @@ public class Main {
             }
         }
         return potentialInstrs;
+    }
+
+    public static List<NullCompareInst> filterRedundant(final List<NullCompareInst> compares) throws AnalyzerException {
+        final List<NullCompareInst> redundant = new ArrayList<>();
+
+        final Analyzer<NullValue> nullAnalyzer = new Analyzer<>(new NullInterpreter(Opcodes.ASM5));
+        for (final NullCompareInst compare: compares) {
+            // TODO: merge different NullCompareInstructions from same method, to minimize calls to analyze()
+            final Frame<NullValue>[] frames =
+                    nullAnalyzer.analyze(compare.getClassNode().name, compare.getMethodNode());
+            final Frame<NullValue> frame = frames[compare.instIndex()];
+            if (frame == null) {
+                continue;
+            }
+            final NullValue nullValue = frame.getStack(compare.getStackOperandIdx());
+            if (nullValue == NullValue.NULL || nullValue == NullValue.NOTNULL) {
+                redundant.add(compare);
+            }
+        }
+
+        return redundant;
     }
 }
