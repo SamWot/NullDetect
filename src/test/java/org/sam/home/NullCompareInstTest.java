@@ -12,8 +12,8 @@ public class NullCompareInstTest {
     private MethodNode mn;
     private LabelNode labeln;
     private LineNumberNode linen;
-    private AbstractInsnNode in1;
-    private AbstractInsnNode in2;
+    private AbstractInsnNode ifnonnull;
+    private AbstractInsnNode ifnull;
 
     @Before
     public void setUp() {
@@ -34,8 +34,8 @@ public class NullCompareInstTest {
 
         this.labeln = new LabelNode();
         this.linen = new LineNumberNode(123, this.labeln);
-        this.in1 = new InsnNode(Opcodes.NOP);
-        this.in2 = new InsnNode(Opcodes.NOP);
+        this.ifnonnull = new JumpInsnNode(Opcodes.IFNONNULL, labeln);
+        this.ifnull = new JumpInsnNode(Opcodes.IFNULL, labeln);
     }
 
 
@@ -43,42 +43,52 @@ public class NullCompareInstTest {
     public void CreateValid() {
         this.mn.instructions.add(this.labeln);
         this.mn.instructions.add(this.linen);
-        this.mn.instructions.add(this.in1);
-        this.mn.instructions.add(this.in2);
+        this.mn.instructions.add(this.ifnonnull);
+        this.mn.instructions.add(this.ifnull);
         this.cn.methods.add(this.mn);
-        new NullCompareInst(this.cn, this.mn, this.in1);
+        new NullCompareInst(this.cn, this.mn, this.ifnull);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void CreateNoDebugInfo() {
         this.cn.name = null;
         this.cn.sourceFile = null;
-        this.mn.instructions.add(this.in1);
+        this.mn.instructions.add(this.ifnonnull);
         this.cn.methods.add(this.mn);
-        new NullCompareInst(this.cn, this.mn, this.in1);
+        new NullCompareInst(this.cn, this.mn, this.ifnull);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void CreateNoInstruction() {
         this.mn.instructions.add(this.labeln);
         this.mn.instructions.add(this.linen);
-        this.mn.instructions.add(this.in1);
+        this.mn.instructions.add(this.ifnonnull);
         this.cn.methods.add(this.mn);
-        new NullCompareInst(this.cn, this.mn, this.in2);
+        new NullCompareInst(this.cn, this.mn, this.ifnull);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void CreateInvalidInstruction() {
+        AbstractInsnNode nop = new InsnNode(Opcodes.NOP);
+        this.mn.instructions.add(this.labeln);
+        this.mn.instructions.add(this.linen);
+        this.mn.instructions.add(nop);
+        this.cn.methods.add(this.mn);
+        new NullCompareInst(this.cn, this.mn, nop);
     }
 
     @Test
     public void DebugInfo1() {
         this.mn.instructions.add(this.labeln);
         this.mn.instructions.add(this.linen);
-        this.mn.instructions.add(this.in1);
-        this.mn.instructions.add(this.in2);
+        this.mn.instructions.add(this.ifnonnull);
+        this.mn.instructions.add(this.ifnull);
         this.cn.methods.add(this.mn);
-        NullCompareInst nc1Inst = new NullCompareInst(this.cn, this.mn, this.in1);
+        NullCompareInst nc1Inst = new NullCompareInst(this.cn, this.mn, this.ifnonnull);
         Assert.assertEquals(123, nc1Inst.lineNumber());
         Assert.assertEquals("FooBar.java", nc1Inst.sourceFileName());
         Assert.assertEquals("FooBar.java:123", nc1Inst.lineInfo());
-        NullCompareInst nc2Inst = new NullCompareInst(this.cn, this.mn, this.in2);
+        NullCompareInst nc2Inst = new NullCompareInst(this.cn, this.mn, this.ifnull);
         Assert.assertEquals(123, nc2Inst.lineNumber());
         Assert.assertEquals("FooBar.java", nc2Inst.sourceFileName());
         Assert.assertEquals("FooBar.java:123", nc2Inst.lineInfo());
@@ -89,10 +99,10 @@ public class NullCompareInstTest {
         this.mn.instructions.add(this.labeln);
         this.mn.instructions.add(this.linen);
         this.mn.instructions.add(new LineNumberNode(456, this.labeln));
-        this.mn.instructions.add(this.in1);
-        this.mn.instructions.add(this.in2);
+        this.mn.instructions.add(this.ifnonnull);
+        this.mn.instructions.add(this.ifnull);
         this.cn.methods.add(this.mn);
-        NullCompareInst ncInst = new NullCompareInst(this.cn, this.mn, this.in1);
+        NullCompareInst ncInst = new NullCompareInst(this.cn, this.mn, this.ifnonnull);
         Assert.assertEquals(456, ncInst.lineNumber());
         Assert.assertEquals("FooBar.java", ncInst.sourceFileName());
         Assert.assertEquals("FooBar.java:456", ncInst.lineInfo());
@@ -102,15 +112,15 @@ public class NullCompareInstTest {
     public void DebugInfo3() {
         this.mn.instructions.add(this.labeln);
         this.mn.instructions.add(this.linen);
-        this.mn.instructions.add(this.in1);
+        this.mn.instructions.add(this.ifnonnull);
         this.mn.instructions.add(new LineNumberNode(456, this.labeln));
-        this.mn.instructions.add(this.in2);
+        this.mn.instructions.add(this.ifnull);
         this.cn.methods.add(this.mn);
-        NullCompareInst nc1Inst = new NullCompareInst(this.cn, this.mn, this.in1);
+        NullCompareInst nc1Inst = new NullCompareInst(this.cn, this.mn, this.ifnonnull);
         Assert.assertEquals(123, nc1Inst.lineNumber());
         Assert.assertEquals("FooBar.java", nc1Inst.sourceFileName());
         Assert.assertEquals("FooBar.java:123", nc1Inst.lineInfo());
-        NullCompareInst nc2Inst = new NullCompareInst(this.cn, this.mn, this.in2);
+        NullCompareInst nc2Inst = new NullCompareInst(this.cn, this.mn, this.ifnull);
         Assert.assertEquals(456, nc2Inst.lineNumber());
         Assert.assertEquals("FooBar.java", nc2Inst.sourceFileName());
         Assert.assertEquals("FooBar.java:456", nc2Inst.lineInfo());
@@ -120,10 +130,10 @@ public class NullCompareInstTest {
     public void NoSourceFileName() {
         this.mn.instructions.add(this.labeln);
         this.mn.instructions.add(this.linen);
-        this.mn.instructions.add(this.in1);
-        this.mn.instructions.add(this.in2);
+        this.mn.instructions.add(this.ifnonnull);
+        this.mn.instructions.add(this.ifnull);
         this.cn.methods.add(this.mn);
-        NullCompareInst ncInst = new NullCompareInst(this.cn, this.mn, this.in1);
+        NullCompareInst ncInst = new NullCompareInst(this.cn, this.mn, this.ifnonnull);
         ncInst.getClassNode().sourceFile = null;
         ncInst.sourceFileName();
     }
@@ -131,21 +141,21 @@ public class NullCompareInstTest {
     @Test(expected = IllegalStateException.class)
     public void NoLineNumber1() {
         this.mn.instructions.add(this.labeln);
-        this.mn.instructions.add(this.in1);
-        this.mn.instructions.add(this.in2);
+        this.mn.instructions.add(this.ifnonnull);
+        this.mn.instructions.add(this.ifnull);
         this.cn.methods.add(this.mn);
-        NullCompareInst ncInst = new NullCompareInst(this.cn, this.mn, this.in1);
+        NullCompareInst ncInst = new NullCompareInst(this.cn, this.mn, this.ifnonnull);
         ncInst.lineNumber();
     }
 
     @Test(expected = IllegalStateException.class)
     public void NoLineNumber2() {
         this.mn.instructions.add(this.labeln);
-        this.mn.instructions.add(this.in1);
-        this.mn.instructions.add(this.in2);
+        this.mn.instructions.add(this.ifnonnull);
+        this.mn.instructions.add(this.ifnull);
         this.mn.instructions.add(this.linen);
         this.cn.methods.add(this.mn);
-        NullCompareInst ncInst = new NullCompareInst(this.cn, this.mn, this.in1);
+        NullCompareInst ncInst = new NullCompareInst(this.cn, this.mn, this.ifnonnull);
         ncInst.lineNumber();
     }
 }

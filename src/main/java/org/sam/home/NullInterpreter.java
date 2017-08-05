@@ -26,6 +26,10 @@ public class NullInterpreter extends Interpreter<NullValue> {
         if (type.getSort() == Type.ARRAY || type.getSort() == Type.OBJECT) {
             return NullValue.MAYBENULL;
         }
+        if (type.getSort() == Type.VOID) {
+            // Analyzer expects that for void methods resukting value should be null
+            return null;
+        }
         return NullValue.NOTNULL;
     }
 
@@ -271,11 +275,9 @@ public class NullInterpreter extends Interpreter<NullValue> {
         }
     }
 
-    // TODO
     @Override
     public void returnOperation(AbstractInsnNode insn, NullValue value, NullValue expected) throws AnalyzerException {}
 
-    // TODO
     @Override
     public NullValue merge(NullValue v, NullValue w) {
         if (v == w) {

@@ -1,10 +1,13 @@
 package org.sam.home;
 
+import org.objectweb.asm.tree.analysis.Analyzer;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
+import org.objectweb.asm.tree.analysis.AnalyzerException;
+import org.objectweb.asm.tree.analysis.Frame;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,28 +37,49 @@ public class Main {
 
             try (final InputStream fis = Files.newInputStream(file, StandardOpenOption.READ)) {
                 final List<NullCompareInst> insts = detect(fis);
+                System.out.println("In class " + fileName + " found " + insts.size() + " redundant null checks:");
                 for (final NullCompareInst inst: insts) {
                     System.out.println(inst.lineInfo());
                 }
+                System.out.println();
             } catch (IOException | SecurityException | UnsupportedOperationException ex) {
                 System.err.println("Can't read file: " + fileName);
+                continue;
+            } catch (AnalyzerException ex) {
+                System.err.println("Something went wrong during analysis:");
+                System.err.println(ex.getMessage());
+                ex.printStackTrace();
                 continue;
             }
         }
     }
 
-    public static List<NullCompareInst> detect(final InputStream fis) throws IOException {
+    public static List<NullCompareInst> detect(final InputStream fis) throws IOException, AnalyzerException {
         final ClassReader cr;
-        try {
-            cr = new ClassReader(fis);
-        } catch (IOException ex) {
-            throw new IOException("Can't read file");
-        }
+        cr = new ClassReader(fis);
 
         final ClassNode cn = new JSRClassInliner(Opcodes.ASM5);
         cr.accept(cn, 0);
 
-        return findPotentialCompares(cn);
+        final List<NullCompareInst> compares = findPotentialCompares(cn);
+        final List<NullCompareInst> redundant = new ArrayList<>();
+
+        final Analyzer<NullValue> nullAnalyzer = new Analyzer<>(new NullInterpreter(Opcodes.ASM5));
+        for (final NullCompareInst compare: compares) {
+            // TODO: merge different NullCompareInstructions from same method, to minimize calls to analyze()
+            final Frame<NullValue>[] frames =
+                    nullAnalyzer.analyze(compare.getClassNode().name, compare.getMethodNode());
+            final Frame<NullValue> frame = frames[compare.instIndex()];
+            if (frame == null) {
+                continue;
+            }
+            final NullValue nullValue = frame.getStack(compare.getStackOperandIdx());
+            if (nullValue == NullValue.NULL || nullValue == NullValue.NOTNULL) {
+                redundant.add(compare);
+            }
+        }
+
+        return redundant;
     }
 
     public static List<NullCompareInst> findPotentialCompares(final ClassNode cn) {

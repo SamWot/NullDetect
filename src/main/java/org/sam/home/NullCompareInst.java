@@ -1,5 +1,6 @@
 package org.sam.home;
 
+import jdk.internal.org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.*;
 
 public final class NullCompareInst {
@@ -13,6 +14,9 @@ public final class NullCompareInst {
         }
         if (cn.sourceFile == null) {
             throw new IllegalArgumentException("No debug info for class " + cn.name);
+        }
+        if (in.getOpcode() != Opcodes.IFNULL && in.getOpcode() != Opcodes.IFNONNULL) {
+            throw new IllegalArgumentException("Only IFNULL and IFNONNULL supported");
         }
 
         this.cn = cn;
@@ -57,5 +61,16 @@ public final class NullCompareInst {
 
     public String lineInfo() {
         return this.sourceFileName() + ":" + Integer.toString(this.lineNumber());
+    }
+
+    public int instIndex() {
+        if (!this.mn.instructions.contains(this.in)) {
+            throw new IllegalStateException("Instruction not in method");
+        }
+        return this.mn.instructions.indexOf(this.in);
+    }
+
+    public int getStackOperandIdx() {
+        return 0;
     }
 }
