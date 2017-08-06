@@ -4,17 +4,14 @@ import org.junit.Assert;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.PathMatcher;
-import java.nio.file.StandardOpenOption;
+import java.nio.file.*;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-public final class Utils {
+final class Utils {
     private Utils() {}
 
     static class ExpectedExampleResults {
@@ -28,18 +25,18 @@ public final class Utils {
     }
 
     static void testResources(final Path resourceDir,
-                              final Map<String, ExpectedExampleResults> expectedResults,
+                              final Map<Path, ExpectedExampleResults> expectedResults,
                               final Function<InputStream, List<NullCompareInst>> testFunction)
             throws IOException {
-        try (final Stream<Path> stream = Files.list(resourceDir)) {
+        try (final Stream<Path> stream = Files.walk(resourceDir)) {
             stream.forEach(path -> {
-                String fileName = path.getFileName().toString();
-                if (expectedResults.containsKey(fileName)) {
-                    ExpectedExampleResults expected = expectedResults.get(fileName);
+                if (expectedResults.containsKey(path)) {
+                    ExpectedExampleResults expected = expectedResults.get(path);
                     try (final InputStream fis = Files.newInputStream(path, StandardOpenOption.READ)) {
                         final List<NullCompareInst> insts = testFunction.apply(fis);
-                        Assert.assertTrue("Testing " + fileName,
-                                Utils.validateInstList(insts,
+                        Assert.assertTrue("Testing " + path,
+                                Utils.validateInstList(
+                                        insts,
                                         expected.sourceFileName,
                                         expected.lineNumbers));
                     } catch (IOException ex) {

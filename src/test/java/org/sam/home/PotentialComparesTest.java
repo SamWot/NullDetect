@@ -21,23 +21,44 @@ import static org.sam.home.Utils.testResources;
 
 public class PotentialComparesTest {
     private static Path resourceDir;
-    private static Map<String, Utils.ExpectedExampleResults> examples;
+    private static Map<Path, Utils.ExpectedExampleResults> examples;
+
+    static Path resourcePath(String ...parts) {
+        return Paths.get(resourceDir.toString(), parts);
+    }
 
     @BeforeClass
     public static void setUpClass() {
         resourceDir = Paths.get("src/test/resources", "class");
         examples = new HashMap<>();
-        examples.put("Example1.class",
+        // Simple examples
+        examples.put(resourcePath("Example1.class"),
                 new ExpectedExampleResults("Example1.java", Arrays.asList(5, 11, 17)));
-        examples.put("Example2.class",
+        examples.put(resourcePath("Example2.class"),
                 new ExpectedExampleResults("Example2.java", Arrays.asList(4, 5, 12)));
-        examples.put("Example3.class",
+        examples.put(resourcePath("Example3.class"),
                 new ExpectedExampleResults("Example3.java", Arrays.asList(10)));
-        examples.put("Example4.class",
+        examples.put(resourcePath("Example4.class"),
                 new ExpectedExampleResults("Example4.java", Arrays.asList(7)));
-        examples.put("Example5.class",
+        examples.put(resourcePath("Example5.class"),
                 new ExpectedExampleResults("Example5.java", Arrays.asList(5)));
-        // TODO: Example6, ArrayList?
+
+        // ArrayList
+        examples.put(resourcePath("ArrayList", "ArrayList.class"),
+                new ExpectedExampleResults("ArrayList.java", Arrays.asList(311, 313, 331, 333, 520, 522)));
+        examples.put(resourcePath("ArrayList", "ArrayList$1.class"),
+                new ExpectedExampleResults("ArrayList.java", Arrays.asList()));
+        examples.put(resourcePath("ArrayList", "ArrayList$ArrayListSpliterator.class"),
+                new ExpectedExampleResults("ArrayList.java", Arrays.asList(1327, 1345, 1362, 1364, 1364)));
+        examples.put(resourcePath("ArrayList", "ArrayList$Itr.class"),
+                new ExpectedExampleResults("ArrayList.java", Arrays.asList()));
+        examples.put(resourcePath("ArrayList", "ArrayList$ListItr.class"),
+                new ExpectedExampleResults("ArrayList.java", Arrays.asList()));
+        examples.put(resourcePath("ArrayList", "ArrayList$SubList.class"),
+                new ExpectedExampleResults("ArrayList.java", Arrays.asList()));
+        examples.put(resourcePath("ArrayList", "ArrayList$SubList$1.class"),
+                new ExpectedExampleResults("ArrayList.java", Arrays.asList()));
+        // TODO: Example6?
         // TODO: Add automatic compilation of examples sources.
     }
 
