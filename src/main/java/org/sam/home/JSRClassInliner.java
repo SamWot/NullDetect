@@ -4,7 +4,7 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.commons.JSRInlinerAdapter;
 import org.objectweb.asm.tree.ClassNode;
 
-public class JSRClassInliner extends ClassNode {
+class JSRClassInliner extends ClassNode {
 
     public JSRClassInliner(final int api) {
         super(api);

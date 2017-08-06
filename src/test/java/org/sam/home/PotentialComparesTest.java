@@ -43,13 +43,13 @@ public class PotentialComparesTest {
 
     @Test
     public void ArtificialExample() {
-        ClassNode cn = new ClassNode(Opcodes.ASM5);
+        final ClassNode cn = new ClassNode(Opcodes.ASM5);
         cn.version = Opcodes.V1_8;
         cn.name = "FooBar";
         cn.sourceFile = "FooBar.java";
         cn.superName = "java/lang/Object";
 
-        MethodNode mn = new MethodNode(
+        final MethodNode mn = new MethodNode(
                 Opcodes.ASM5,
                 Opcodes.ACC_PUBLIC,
                 "buz",
@@ -59,8 +59,8 @@ public class PotentialComparesTest {
         cn.methods.add(mn);
         mn.instructions = new InsnList();
 
-        LabelNode startLabel = new LabelNode();
-        LabelNode endLabel = new LabelNode();
+        final LabelNode startLabel = new LabelNode();
+        final LabelNode endLabel = new LabelNode();
 
         mn.instructions.add(startLabel);
         mn.instructions.add(new LineNumberNode(123, startLabel));
@@ -75,7 +75,8 @@ public class PotentialComparesTest {
         mn.instructions.add(new InsnNode(Opcodes.NOP));
         mn.instructions.add(endLabel);
 
-        List<NullCompareInst> potentialCompares = Main.findPotentialCompares(cn);
+        final NullAnalyzer analyzer = new NullAnalyzer();
+        List<NullCompareInst> potentialCompares = analyzer.findPotentialCompares(cn);
         Assert.assertEquals(2, potentialCompares.size());
         Assert.assertEquals(123, potentialCompares.get(0).lineNumber());
         Assert.assertEquals("FooBar.java", potentialCompares.get(0).sourceFileName());
@@ -97,7 +98,9 @@ public class PotentialComparesTest {
                     }
                     final ClassNode cn = new ClassNode(Opcodes.ASM5);
                     cr.accept(cn, 0);
-                    return Main.findPotentialCompares(cn);
+
+                    final NullAnalyzer analyzer = new NullAnalyzer();
+                    return analyzer.findPotentialCompares(cn);
                 });
     }
 }

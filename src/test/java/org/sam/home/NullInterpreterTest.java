@@ -47,17 +47,9 @@ public class NullInterpreterTest {
                 resourceDir,
                 examples,
                 (fis) -> {
-                    final ClassReader cr;
                     try {
-                        cr = new ClassReader(fis);
-                    } catch (IOException ex) {
-                        throw new RuntimeException(ex);
-                    }
-                    final ClassNode cn = new ClassNode(Opcodes.ASM5);
-                    cr.accept(cn, 0);
-                    try {
-                        return Main.filterRedundant(Main.findPotentialCompares(cn));
-                    } catch (AnalyzerException ex) {
+                        return Main.detect(fis);
+                    } catch (AnalyzerException | IOException ex) {
                         throw new RuntimeException(ex);
                     }
                 });
