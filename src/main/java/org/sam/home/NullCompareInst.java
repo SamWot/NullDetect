@@ -1,6 +1,6 @@
 package org.sam.home;
 
-import jdk.internal.org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.*;
 
 public final class NullCompareInst {
@@ -60,7 +60,7 @@ public final class NullCompareInst {
     }
 
     public String lineInfo() {
-        return this.sourceFileName() + ":" + Integer.toString(this.lineNumber());
+        return this.sourceFileName() + ":" + this.lineNumber();
     }
 
     public int instIndex() {

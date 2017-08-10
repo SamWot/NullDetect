@@ -8,15 +8,45 @@
     <artifactId>NullDetect</artifactId>
     <version>1.0</version>
 
+    <properties>
+        <main.class>org.sam.home.Main</main.class>
+        <compiler.version>1.8</compiler.version>
+        <asm.version>5.2</asm.version>
+        <junit.version>4.12</junit.version>
+    </properties>
+
     <build>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
+                    <source>${compiler.version}</source>
+                    <target>${compiler.version}</target>
                 </configuration>
+            </plugin>
+
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <mainClass>${main.class}</mainClass>
+                        </manifest>
+                    </archive>
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>make-assembly</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
@@ -27,14 +57,14 @@
             <groupId>org.ow2.asm</groupId>
             <!-- Debug - so that generics information is not stripped -->
             <artifactId>asm-debug-all</artifactId>
-            <version>5.2</version>
+            <version>${asm.version}</version>
         </dependency>
 
         <!-- JUnit -->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.12</version>
+            <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

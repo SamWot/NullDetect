@@ -58,7 +58,7 @@ public class NullAnalyzer extends Analyzer<NullValue> {
 
         for (final NullCompareInst compare: compares) {
             // TODO: merge different NullCompareInstructions from same method, to minimize calls to analyze()
-            // TODO; or cache results from previous analyses
+            // TODO: or cache results from previous analyses
             final Frame<NullValue>[] frames =
                     this.analyze(compare.getClassNode().name, compare.getMethodNode());
             final Frame<NullValue> frame = frames[compare.instIndex()];
