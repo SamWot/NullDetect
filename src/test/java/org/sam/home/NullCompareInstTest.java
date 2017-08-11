@@ -40,7 +40,7 @@ public class NullCompareInstTest {
 
 
     @Test
-    public void CreateValid() {
+    public void createValid() {
         this.mn.instructions.add(this.labeln);
         this.mn.instructions.add(this.linen);
         this.mn.instructions.add(this.ifnonnull);
@@ -50,7 +50,7 @@ public class NullCompareInstTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void CreateNoDebugInfo() {
+    public void createNoDebugInfo() {
         this.cn.name = null;
         this.cn.sourceFile = null;
         this.mn.instructions.add(this.ifnonnull);
@@ -59,7 +59,7 @@ public class NullCompareInstTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void CreateNoInstruction() {
+    public void createNoInstruction() {
         this.mn.instructions.add(this.labeln);
         this.mn.instructions.add(this.linen);
         this.mn.instructions.add(this.ifnonnull);
@@ -68,7 +68,7 @@ public class NullCompareInstTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void CreateInvalidInstruction() {
+    public void createInvalidInstruction() {
         AbstractInsnNode nop = new InsnNode(Opcodes.NOP);
         this.mn.instructions.add(this.labeln);
         this.mn.instructions.add(this.linen);
@@ -78,7 +78,7 @@ public class NullCompareInstTest {
     }
 
     @Test
-    public void DebugInfo1() {
+    public void debugInfo1() {
         this.mn.instructions.add(this.labeln);
         this.mn.instructions.add(this.linen);
         this.mn.instructions.add(this.ifnonnull);
@@ -95,7 +95,7 @@ public class NullCompareInstTest {
     }
 
     @Test
-    public void DebugInfo2() {
+    public void debugInfo2() {
         this.mn.instructions.add(this.labeln);
         this.mn.instructions.add(this.linen);
         this.mn.instructions.add(new LineNumberNode(456, this.labeln));
@@ -109,7 +109,7 @@ public class NullCompareInstTest {
     }
 
     @Test
-    public void DebugInfo3() {
+    public void debugInfo3() {
         this.mn.instructions.add(this.labeln);
         this.mn.instructions.add(this.linen);
         this.mn.instructions.add(this.ifnonnull);
@@ -127,7 +127,7 @@ public class NullCompareInstTest {
     }
 
     @Test(expected = IllegalStateException.class)
-    public void NoSourceFileName() {
+    public void noSourceFileName() {
         this.mn.instructions.add(this.labeln);
         this.mn.instructions.add(this.linen);
         this.mn.instructions.add(this.ifnonnull);
@@ -139,7 +139,7 @@ public class NullCompareInstTest {
     }
 
     @Test(expected = IllegalStateException.class)
-    public void NoLineNumber1() {
+    public void noLineNumber1() {
         this.mn.instructions.add(this.labeln);
         this.mn.instructions.add(this.ifnonnull);
         this.mn.instructions.add(this.ifnull);
@@ -149,7 +149,7 @@ public class NullCompareInstTest {
     }
 
     @Test(expected = IllegalStateException.class)
-    public void NoLineNumber2() {
+    public void noLineNumber2() {
         this.mn.instructions.add(this.labeln);
         this.mn.instructions.add(this.ifnonnull);
         this.mn.instructions.add(this.ifnull);

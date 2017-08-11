@@ -42,6 +42,8 @@ public class PotentialComparesTest {
                 new ExpectedExampleResults("Example4.java", Arrays.asList(7)));
         examples.put(resourcePath("Example5.class"),
                 new ExpectedExampleResults("Example5.java", Arrays.asList(5)));
+        examples.put(resourcePath("ExampleStaticMethod.class"),
+                new ExpectedExampleResults("ExampleStaticMethod.java", Arrays.asList(17, 23)));
 
         // ArrayList
         examples.put(resourcePath("ArrayList", "ArrayList.class"),
@@ -63,8 +65,8 @@ public class PotentialComparesTest {
     }
 
     @Test
-    public void ArtificialExample() {
-        final ClassNode cn = new ClassNode(Opcodes.ASM5);
+    public void artificialExample() {
+        final NullClassNode cn = new NullClassNode(Opcodes.ASM5);
         cn.version = Opcodes.V1_8;
         cn.name = "FooBar";
         cn.sourceFile = "FooBar.java";
@@ -96,7 +98,7 @@ public class PotentialComparesTest {
         mn.instructions.add(new InsnNode(Opcodes.NOP));
         mn.instructions.add(endLabel);
 
-        final NullAnalyzer analyzer = new NullAnalyzer();
+        final NullAnalyzer analyzer = new NullAnalyzer(cn);
         List<NullCompareInst> potentialCompares = analyzer.findPotentialCompares(cn);
         Assert.assertEquals(2, potentialCompares.size());
         Assert.assertEquals(123, potentialCompares.get(0).lineNumber());
@@ -106,7 +108,7 @@ public class PotentialComparesTest {
     }
 
     @Test
-    public void Examples() throws IOException {
+    public void examples() throws IOException {
         testResources(
                 resourceDir,
                 examples,
@@ -117,10 +119,10 @@ public class PotentialComparesTest {
                     } catch (IOException ex) {
                         throw new RuntimeException(ex);
                     }
-                    final ClassNode cn = new ClassNode(Opcodes.ASM5);
+                    final NullClassNode cn = new NullClassNode(Opcodes.ASM5);
                     cr.accept(cn, 0);
 
-                    final NullAnalyzer analyzer = new NullAnalyzer();
+                    final NullAnalyzer analyzer = new NullAnalyzer(cn);
                     return analyzer.findPotentialCompares(cn);
                 });
     }

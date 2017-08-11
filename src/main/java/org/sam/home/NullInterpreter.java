@@ -2,18 +2,22 @@ package org.sam.home;
 
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
-import org.objectweb.asm.tree.AbstractInsnNode;
-import org.objectweb.asm.tree.FieldInsnNode;
-import org.objectweb.asm.tree.InvokeDynamicInsnNode;
-import org.objectweb.asm.tree.MethodInsnNode;
+import org.objectweb.asm.tree.*;
 import org.objectweb.asm.tree.analysis.AnalyzerException;
 import org.objectweb.asm.tree.analysis.Interpreter;
 
 import java.util.List;
+import java.util.Optional;
 
 public class NullInterpreter extends Interpreter<NullValue> {
+    private NullAnalyzer analyzer;
+
     public NullInterpreter(final int api) {
         super(api);
+    }
+
+    public final void setAnalyzer(NullAnalyzer analyzer) {
+        this.analyzer = analyzer;
     }
 
     @Override
@@ -243,9 +247,29 @@ public class NullInterpreter extends Interpreter<NullValue> {
     @Override
     public NullValue naryOperation(AbstractInsnNode insn, List<? extends NullValue> values) throws AnalyzerException {
         switch (insn.getOpcode()) {
+            case Opcodes.INVOKESTATIC: {
+                Type resType = Type.getReturnType(((MethodInsnNode) insn).desc);
+                if (resType.getSort() == Type.ARRAY || resType.getSort() == Type.OBJECT) {
+                    // TODO: try to check return value of this method.
+                    if (this.analyzer == null) {
+                        return NullValue.MAYBENULL;
+                    }
+                    final Optional<MethodNode> method =
+                            this.analyzer.getClassNode().tryResolveStatic((MethodInsnNode) insn);
+                    if (!method.isPresent()) {
+                        return NullValue.MAYBENULL;
+                    }
+                    return this.analyzer.analyzeMethodReturnValue(method.get()).orElse(NullValue.MAYBENULL);
+                } else if (resType.getSort() == Type.VOID)  {
+                    return null;
+                } else {
+                    // TODO: mb try to trace return value of this method
+                    return NullValue.NOTNULL;
+                }
+
+            }
             case Opcodes.INVOKEVIRTUAL:
             case Opcodes.INVOKESPECIAL:
-            case Opcodes.INVOKESTATIC:
             case Opcodes.INVOKEINTERFACE: {
                 Type resType = Type.getReturnType(((MethodInsnNode) insn).desc);
                 if (resType.getSort() == Type.ARRAY || resType.getSort() == Type.OBJECT) {
@@ -254,7 +278,7 @@ public class NullInterpreter extends Interpreter<NullValue> {
                 } else if (resType.getSort() == Type.VOID)  {
                     return null;
                 } else {
-                    // TODO: mb try to trace value of this return-value of this method
+                    // TODO: mb try to trace return value of this method
                     return NullValue.NOTNULL;
                 }
             }

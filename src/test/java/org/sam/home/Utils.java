@@ -1,6 +1,10 @@
 package org.sam.home;
 
 import org.junit.Assert;
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.tree.MethodInsnNode;
+import org.objectweb.asm.tree.MethodNode;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -8,6 +12,7 @@ import java.nio.file.*;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
@@ -70,6 +75,15 @@ final class Utils {
                 getPathMatcher("glob:**" + fileName);
         try (final Stream<Path> stream = Files.list(resourceDir)) {
             return stream.filter(nameFilter::matches).findFirst().get();
+        }
+    }
+
+    static NullClassNode nodeForResource(Path resourceFile) throws IOException {
+        try (final InputStream fis = Files.newInputStream(resourceFile, StandardOpenOption.READ)) {
+            final ClassReader cr = new ClassReader(fis);
+            final NullClassNode cn = new NullClassNode(Opcodes.ASM5);
+            cr.accept(cn, 0);
+            return cn;
         }
     }
 }

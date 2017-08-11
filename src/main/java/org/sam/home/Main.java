@@ -52,10 +52,10 @@ public class Main {
         final ClassReader cr;
         cr = new ClassReader(fis);
 
-        final ClassNode cn = new JSRClassInliner(Opcodes.ASM5);
+        final NullClassNode cn = new NullClassNode(Opcodes.ASM5);
         cr.accept(cn, 0);
 
-        final NullAnalyzer analyzer = new NullAnalyzer();
+        final NullAnalyzer analyzer = new NullAnalyzer(cn);
         return analyzer.filterRedundant(analyzer.findPotentialCompares(cn));
     }
 }
