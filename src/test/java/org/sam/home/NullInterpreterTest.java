@@ -22,7 +22,7 @@ import static org.sam.home.Utils.testResources;
 public class NullInterpreterTest {
     private static Path resourceDir;
     private static Map<Path, Utils.ExpectedExampleResults> examplesPassing;
-    private static Map<Path, Utils.ExpectedExampleResults> examplesFailing;
+    private static Map<Path, Utils.ExpectedExampleResults> examplesFailling;
 
 
     static Path resourcePath(String ...parts) {
@@ -33,22 +33,22 @@ public class NullInterpreterTest {
     public static void setUpClass() {
         resourceDir = Paths.get("src/test/resources", "class");
         examplesPassing = new HashMap<>();
-        examplesFailing = new HashMap<>();
+        examplesFailling = new HashMap<>();
 
         // Simple examples
         examplesPassing.put(resourcePath("Example1.class"),
                 new ExpectedExampleResults("Example1.java", Arrays.asList(5, 11, 17)));
+        examplesPassing.put(resourcePath("Example4.class"),
+                new ExpectedExampleResults("Example4.java", Arrays.asList(7)));
         examplesPassing.put(resourcePath("Example5.class"),
                 new ExpectedExampleResults("Example5.java", Arrays.asList(5)));
         examplesPassing.put(resourcePath("ExampleStaticMethod.class"),
                 new ExpectedExampleResults("ExampleStaticMethod.java", Arrays.asList(17)));
         // currently failing:
-        examplesFailing.put(resourcePath("Example2.class"),
+        examplesFailling.put(resourcePath("Example2.class"),
                 new ExpectedExampleResults("Example2.java", Arrays.asList(5, 12)));
-        examplesFailing.put(resourcePath("Example3.class"),
+        examplesFailling.put(resourcePath("Example3.class"),
                 new ExpectedExampleResults("Example3.java", Arrays.asList(10)));
-        examplesFailing.put(resourcePath("Example4.class"),
-                new ExpectedExampleResults("Example4.java", Arrays.asList(7)));
 
 
         // ArrayList
@@ -89,7 +89,7 @@ public class NullInterpreterTest {
     public void examplesFail() throws IOException {
         testResources(
                 resourceDir,
-                examplesFailing,
+                examplesFailling,
                 (fis) -> {
                     try {
                         return Main.detect(fis);

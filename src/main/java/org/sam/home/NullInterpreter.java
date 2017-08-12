@@ -247,7 +247,8 @@ public class NullInterpreter extends Interpreter<NullValue> {
     @Override
     public NullValue naryOperation(AbstractInsnNode insn, List<? extends NullValue> values) throws AnalyzerException {
         switch (insn.getOpcode()) {
-            case Opcodes.INVOKESTATIC: {
+            case Opcodes.INVOKESTATIC:
+            case Opcodes.INVOKEVIRTUAL: {
                 Type resType = Type.getReturnType(((MethodInsnNode) insn).desc);
                 if (resType.getSort() == Type.ARRAY || resType.getSort() == Type.OBJECT) {
                     // TODO: try to check return value of this method.
@@ -255,7 +256,7 @@ public class NullInterpreter extends Interpreter<NullValue> {
                         return NullValue.MAYBENULL;
                     }
                     final Optional<MethodNode> method =
-                            this.analyzer.getClassNode().tryResolveStatic((MethodInsnNode) insn);
+                            this.analyzer.getClassNode().tryResolveMethod((MethodInsnNode) insn);
                     if (!method.isPresent()) {
                         return NullValue.MAYBENULL;
                     }
@@ -268,7 +269,6 @@ public class NullInterpreter extends Interpreter<NullValue> {
                 }
 
             }
-            case Opcodes.INVOKEVIRTUAL:
             case Opcodes.INVOKESPECIAL:
             case Opcodes.INVOKEINTERFACE: {
                 Type resType = Type.getReturnType(((MethodInsnNode) insn).desc);
