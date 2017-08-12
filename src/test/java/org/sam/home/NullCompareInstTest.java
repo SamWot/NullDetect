@@ -2,10 +2,10 @@ package org.sam.home;
 
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Test;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
-import org.junit.Test;
 
 public class NullCompareInstTest {
     private ClassNode cn;
