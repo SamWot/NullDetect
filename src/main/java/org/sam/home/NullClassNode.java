@@ -68,7 +68,7 @@ public class NullClassNode extends ClassNode {
     }
 
     public Optional<MethodNode> tryResolveVirtual(final MethodInsnNode invoke) throws AnalyzerException {
-        if (invoke.getOpcode() != Opcodes.INVOKEVIRTUAL) {
+        if (invoke.getOpcode() != Opcodes.INVOKEVIRTUAL || invoke.getOpcode() != Opcodes.INVOKEINTERFACE) {
             return Optional.empty();
         }
         if (invoke.name.equals("<init>") || invoke.name.equals("<clinit>")) {
@@ -140,7 +140,7 @@ public class NullClassNode extends ClassNode {
     public Optional<MethodNode> tryResolveMethod(final MethodInsnNode invoke) throws AnalyzerException {
         if (invoke.getOpcode() == Opcodes.INVOKESTATIC) {
             return tryResolveStatic(invoke);
-        } else if (invoke.getOpcode() == Opcodes.INVOKEVIRTUAL) {
+        } else if (invoke.getOpcode() == Opcodes.INVOKEVIRTUAL || invoke.getOpcode() == Opcodes.INVOKEINTERFACE) {
             return tryResolveVirtual(invoke);
         } else if (invoke.getOpcode() == Opcodes.INVOKESPECIAL) {
             return tryResolveSpecial(invoke);

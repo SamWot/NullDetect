@@ -249,6 +249,7 @@ public class NullInterpreter extends Interpreter<NullValue> {
         switch (insn.getOpcode()) {
             case Opcodes.INVOKESTATIC:
             case Opcodes.INVOKEVIRTUAL:
+            case Opcodes.INVOKEINTERFACE:
             case Opcodes.INVOKESPECIAL: {
                 Type resType = Type.getReturnType(((MethodInsnNode) insn).desc);
                 if (resType.getSort() == Type.ARRAY || resType.getSort() == Type.OBJECT) {
@@ -269,18 +270,6 @@ public class NullInterpreter extends Interpreter<NullValue> {
                     return NullValue.NOTNULL;
                 }
 
-            }
-            case Opcodes.INVOKEINTERFACE: {
-                Type resType = Type.getReturnType(((MethodInsnNode) insn).desc);
-                if (resType.getSort() == Type.ARRAY || resType.getSort() == Type.OBJECT) {
-                    // TODO: try to check return value of this method.
-                    return NullValue.MAYBENULL;
-                } else if (resType.getSort() == Type.VOID)  {
-                    return null;
-                } else {
-                    // TODO: mb try to trace return value of this method
-                    return NullValue.NOTNULL;
-                }
             }
             case Opcodes.INVOKEDYNAMIC: {
                 Type resType = Type.getReturnType(((InvokeDynamicInsnNode) insn).desc);
