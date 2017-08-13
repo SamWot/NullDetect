@@ -48,6 +48,8 @@ public class NullInterpreterTest {
                 new ExpectedExampleResults("ExampleVirtualMethod.java", Arrays.asList(23)));
         examplesPassing.put(resourcePath("ExampleVirtualMethod2.class"),
                 new ExpectedExampleResults("ExampleVirtualMethod2.java", Arrays.asList(11)));
+        examplesPassing.put(resourcePath("ExamplePrivateMethod.class"),
+                new ExpectedExampleResults("ExamplePrivateMethod.java", Arrays.asList(9)));
         // currently failing:
         examplesFailling.put(resourcePath("Example2.class"),
                 new ExpectedExampleResults("Example2.java", Arrays.asList(5, 12)));

@@ -248,7 +248,8 @@ public class NullInterpreter extends Interpreter<NullValue> {
     public NullValue naryOperation(AbstractInsnNode insn, List<? extends NullValue> values) throws AnalyzerException {
         switch (insn.getOpcode()) {
             case Opcodes.INVOKESTATIC:
-            case Opcodes.INVOKEVIRTUAL: {
+            case Opcodes.INVOKEVIRTUAL:
+            case Opcodes.INVOKESPECIAL: {
                 Type resType = Type.getReturnType(((MethodInsnNode) insn).desc);
                 if (resType.getSort() == Type.ARRAY || resType.getSort() == Type.OBJECT) {
                     // TODO: try to check return value of this method.
@@ -269,7 +270,6 @@ public class NullInterpreter extends Interpreter<NullValue> {
                 }
 
             }
-            case Opcodes.INVOKESPECIAL:
             case Opcodes.INVOKEINTERFACE: {
                 Type resType = Type.getReturnType(((MethodInsnNode) insn).desc);
                 if (resType.getSort() == Type.ARRAY || resType.getSort() == Type.OBJECT) {

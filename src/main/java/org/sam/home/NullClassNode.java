@@ -83,7 +83,7 @@ public class NullClassNode extends ClassNode {
         }
         Type top = analyzer.topStackType(thisMethod.get(), invoke);
         if (!top.equals(Type.getObjectType(this.name))) {
-            // can't resolve method with differentrun-time type
+            // can't resolve method with different run-time type
             return Optional.empty();
         }
         for (MethodNode method: this.methods) {
@@ -107,11 +107,43 @@ public class NullClassNode extends ClassNode {
         return Optional.empty();
     }
 
+    public Optional<MethodNode> tryResolveSpecial(final MethodInsnNode invoke) throws AnalyzerException {
+        if (invoke.getOpcode() != Opcodes.INVOKESPECIAL) {
+            return Optional.empty();
+        }
+        if (invoke.name.equals("<init>") || invoke.name.equals("<clinit>")) {
+            // special treatment needed for constructors and class initializers needed
+            return Optional.empty();
+        }
+        Method invokeDesc = new Method(invoke.name, invoke.desc);
+        TypeAnalyzer analyzer = new TypeAnalyzer(this);
+        Optional<MethodNode> thisMethod = findMethodByInst(invoke);
+        if (!thisMethod.isPresent()) {
+            return Optional.empty();
+        }
+        for (MethodNode method: this.methods) {
+            if (((method.access & Opcodes.ACC_PRIVATE) == 0) // not private method
+                ||  ((method.access & Opcodes.ACC_STATIC) != 0) // static method
+                || ((method.access & Opcodes.ACC_NATIVE) != 0) // native method
+                || ((method.access & Opcodes.ACC_ABSTRACT) != 0)) { // abstract method
+                continue;
+            }
+
+            if (method.desc.equals(invokeDesc.getDescriptor())
+                    && method.name.equals(invokeDesc.getName())) {
+                return Optional.of(method);
+            }
+        }
+        return Optional.empty();
+    }
+
     public Optional<MethodNode> tryResolveMethod(final MethodInsnNode invoke) throws AnalyzerException {
         if (invoke.getOpcode() == Opcodes.INVOKESTATIC) {
             return tryResolveStatic(invoke);
         } else if (invoke.getOpcode() == Opcodes.INVOKEVIRTUAL) {
             return tryResolveVirtual(invoke);
+        } else if (invoke.getOpcode() == Opcodes.INVOKESPECIAL) {
+            return tryResolveSpecial(invoke);
         }
         return Optional.empty();
     }
