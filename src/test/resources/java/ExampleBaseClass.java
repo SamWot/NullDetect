@@ -5,6 +5,10 @@ public class ExampleBaseClass {
         return "foo";
     }
 
+    public String bar() {
+        return "bar";
+    }
+
     public Object notNull() {
         return new Object();
     }

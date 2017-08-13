@@ -44,6 +44,10 @@ public class PotentialComparesTest {
                 new ExpectedExampleResults("Example5.java", Arrays.asList(5)));
         examples.put(resourcePath("ExampleStaticMethod.class"),
                 new ExpectedExampleResults("ExampleStaticMethod.java", Arrays.asList(17, 23)));
+        examples.put(resourcePath("ExampleVirtualMethod.class"),
+                new ExpectedExampleResults("ExampleVirtualMethod.java", Arrays.asList(16, 23)));
+        examples.put(resourcePath("ExampleVirtualMethod2.class"),
+                new ExpectedExampleResults("ExampleVirtualMethod2.java", Arrays.asList(11)));
 
         // ArrayList
         examples.put(resourcePath("ArrayList", "ArrayList.class"),

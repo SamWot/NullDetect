@@ -88,7 +88,11 @@ public class NullClassNode extends ClassNode {
         }
         for (MethodNode method: this.methods) {
             if (((method.access & Opcodes.ACC_FINAL) == 0) // not final method
-                || ((method.access & Opcodes.ACC_STATIC) != 0) // static method
+                && ((this.access & Opcodes.ACC_FINAL) == 0)) { // not final class
+                continue;
+            }
+
+            if (((method.access & Opcodes.ACC_STATIC) != 0) // static method
                 || ((method.access & Opcodes.ACC_NATIVE) != 0) // native method
                 || ((method.access & Opcodes.ACC_PRIVATE) != 0) // private method
                 || ((method.access & Opcodes.ACC_ABSTRACT) != 0)) { // abstract method
