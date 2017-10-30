@@ -1,4 +1,4 @@
-package org.sam.home;
+package org.sam.home.analyzer;
 
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -9,6 +9,8 @@ import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.analysis.AnalyzerException;
+import org.sam.home.Utils;
+import org.sam.home.analyzer.TypeAnalyzer;
 
 import java.io.IOException;
 import java.nio.file.Path;

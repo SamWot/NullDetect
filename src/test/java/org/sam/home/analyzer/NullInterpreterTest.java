@@ -1,4 +1,4 @@
-package org.sam.home;
+package org.sam.home.analyzer;
 
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -7,6 +7,11 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.analysis.AnalyzerException;
+import org.sam.home.Utils;
+import org.sam.home.analyzer.Main;
+import org.sam.home.analyzer.NullAnalyzer;
+import org.sam.home.analyzer.NullClassNode;
+import org.sam.home.analyzer.NullValue;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -21,8 +26,8 @@ import static org.sam.home.Utils.testResources;
 
 public class NullInterpreterTest {
     private static Path resourceDir;
-    private static Map<Path, Utils.ExpectedExampleResults> examplesPassing;
-    private static Map<Path, Utils.ExpectedExampleResults> examplesFailling;
+    private static Map<Path, ExpectedExampleResults> examplesPassing;
+    private static Map<Path, ExpectedExampleResults> examplesFailling;
 
 
     static Path resourcePath(String ...parts) {

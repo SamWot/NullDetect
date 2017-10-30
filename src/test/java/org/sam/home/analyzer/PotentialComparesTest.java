@@ -1,4 +1,4 @@
-package org.sam.home;
+package org.sam.home.analyzer;
 
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -7,6 +7,9 @@ import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
+import org.sam.home.analyzer.NullAnalyzer;
+import org.sam.home.analyzer.NullClassNode;
+import org.sam.home.analyzer.NullCompareInst;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -21,7 +24,7 @@ import static org.sam.home.Utils.testResources;
 
 public class PotentialComparesTest {
     private static Path resourceDir;
-    private static Map<Path, Utils.ExpectedExampleResults> examples;
+    private static Map<Path, ExpectedExampleResults> examples;
 
     static Path resourcePath(String ...parts) {
         return Paths.get(resourceDir.toString(), parts);

@@ -1,4 +1,4 @@
-package org.sam.home;
+package org.sam.home.analyzer;
 
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -68,7 +68,7 @@ public class NullClassNode extends ClassNode {
     }
 
     public Optional<MethodNode> tryResolveVirtual(final MethodInsnNode invoke) throws AnalyzerException {
-        if (invoke.getOpcode() != Opcodes.INVOKEVIRTUAL || invoke.getOpcode() != Opcodes.INVOKEINTERFACE) {
+        if (invoke.getOpcode() != Opcodes.INVOKEVIRTUAL && invoke.getOpcode() != Opcodes.INVOKEINTERFACE) {
             return Optional.empty();
         }
         if (invoke.name.equals("<init>") || invoke.name.equals("<clinit>")) {

@@ -9,7 +9,7 @@
     <version>1.0</version>
 
     <properties>
-        <main.class>org.sam.home.Main</main.class>
+        <main.class>org.sam.home.analyzer.Main</main.class>
         <compiler.version>1.8</compiler.version>
         <asm.version>5.2</asm.version>
         <junit.version>4.12</junit.version>

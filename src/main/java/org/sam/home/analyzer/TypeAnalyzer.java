@@ -1,4 +1,4 @@
-package org.sam.home;
+package org.sam.home.analyzer;
 
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;

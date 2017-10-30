@@ -1,4 +1,4 @@
-package org.sam.home;
+package org.sam.home.analyzer;
 
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Opcodes;

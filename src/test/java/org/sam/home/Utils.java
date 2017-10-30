@@ -3,6 +3,8 @@ package org.sam.home;
 import org.junit.Assert;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Opcodes;
+import org.sam.home.analyzer.NullClassNode;
+import org.sam.home.analyzer.NullCompareInst;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -16,10 +18,10 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-final class Utils {
+public final class Utils {
     private Utils() {}
 
-    static class ExpectedExampleResults {
+    public static class ExpectedExampleResults {
         public String sourceFileName;
         public List<Integer> lineNumbers;
 
@@ -29,7 +31,7 @@ final class Utils {
         }
     }
 
-    static void testResources(final Path resourceDir,
+    public static void testResources(final Path resourceDir,
                               final Map<Path, ExpectedExampleResults> expectedResults,
                               final Function<InputStream, List<NullCompareInst>> testFunction)
             throws IOException {
@@ -52,7 +54,7 @@ final class Utils {
         }
     }
 
-    static boolean validateInstList(final List<NullCompareInst> insts,
+    public static boolean validateInstList(final List<NullCompareInst> insts,
                                     final String sourceFileName,
                                     final List<Integer> lineNumbers) {
         if (insts.size() != lineNumbers.size()) {
@@ -70,7 +72,7 @@ final class Utils {
         return true;
     }
 
-    static Path findResourceFile(final Path resourceDir, final String fileName) throws IOException {
+    public static Path findResourceFile(final Path resourceDir, final String fileName) throws IOException {
         final PathMatcher nameFilter = resourceDir.getFileSystem().
                 getPathMatcher("glob:**" + fileName);
         try (final Stream<Path> stream = Files.list(resourceDir)) {
@@ -78,7 +80,7 @@ final class Utils {
         }
     }
 
-    static NullClassNode nodeForResource(Path resourceFile) throws IOException {
+    public static NullClassNode nodeForResource(Path resourceFile) throws IOException {
         try (final InputStream fis = Files.newInputStream(resourceFile, StandardOpenOption.READ)) {
             final ClassReader cr = new ClassReader(fis);
             final NullClassNode cn = new NullClassNode(Opcodes.ASM5);
