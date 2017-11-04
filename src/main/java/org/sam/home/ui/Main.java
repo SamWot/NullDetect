@@ -1,14 +1,9 @@
 package org.sam.home.ui;
 
-import org.objectweb.asm.tree.analysis.AnalyzerException;
-import org.sam.home.analyzer.NullAnalyzer;
 import org.sam.home.analyzer.NullCompareInst;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.*;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.*;
 import java.util.stream.Stream;
 
@@ -33,20 +28,20 @@ public class Main {
 
             final ExecutorService executor =
                     Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() + 1);
-            final CompletionService<AnalyzerTask.AnalyzerResult> completionService =
+            final CompletionService<AnalyzerJob.AnalyzerResult> completionService =
                     new ExecutorCompletionService<>(executor);
 
             try (final Stream<Path> dirStream = Files.walk(dir)) {
                 long filesNumber = dirStream
                         .filter(path -> classMatcher.matches(path))
                         .filter(path -> Files.isRegularFile(path, LinkOption.NOFOLLOW_LINKS))
-                        .peek(path -> completionService.submit(new AnalyzerTask(path)))
+                        .peek(path -> completionService.submit(new AnalyzerJob(path)))
                         .count();
 
                 for (int i = 0; i < filesNumber; i++) {
-                    Future<AnalyzerTask.AnalyzerResult> future = completionService.take();
+                    Future<AnalyzerJob.AnalyzerResult> future = completionService.take();
                     try {
-                        AnalyzerTask.AnalyzerResult result = future.get();
+                        AnalyzerJob.AnalyzerResult result = future.get();
                         System.out.println("In class " + result.getFile().getFileName() + " found "
                                 + result.getRedundantInsts().size() + " redundant null checks:");
                         for (final NullCompareInst inst: result.getRedundantInsts()) {
