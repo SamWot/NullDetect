@@ -26,7 +26,7 @@ public class TypeAnalyzerTest {
     @BeforeClass
     public static void setUpClass() throws IOException {
         final Path resourceDir = Paths.get("src/test/resources", "class");
-        resource = Utils.findResourceFile(resourceDir, "TypeAnalyzerTest.class");
+        resource = Utils.findResourceFile(resourceDir, "TypeAnalyzerTestResource.class");
         cn = Utils.nodeForResource(resource);
         analyzer = new TypeAnalyzer(cn);
     }
