@@ -8,10 +8,6 @@ import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.analysis.AnalyzerException;
 import org.sam.home.Utils;
-import org.sam.home.analyzer.Main;
-import org.sam.home.analyzer.NullAnalyzer;
-import org.sam.home.analyzer.NullClassNode;
-import org.sam.home.analyzer.NullValue;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -88,7 +84,7 @@ public class NullInterpreterTest {
                 examplesPassing,
                 (fis) -> {
                     try {
-                        return Main.detect(fis);
+                        return NullAnalyzer.findRedundantNullChecks(fis);
                     } catch (AnalyzerException | IOException ex) {
                         throw new RuntimeException(ex);
                     }
@@ -103,7 +99,7 @@ public class NullInterpreterTest {
                 examplesFailling,
                 (fis) -> {
                     try {
-                        return Main.detect(fis);
+                        return NullAnalyzer.findRedundantNullChecks(fis);
                     } catch (AnalyzerException | IOException ex) {
                         throw new RuntimeException(ex);
                     }

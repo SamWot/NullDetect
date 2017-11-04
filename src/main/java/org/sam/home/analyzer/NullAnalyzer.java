@@ -1,5 +1,6 @@
 package org.sam.home.analyzer;
 
+import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.Method;
@@ -10,6 +11,8 @@ import org.objectweb.asm.tree.analysis.Analyzer;
 import org.objectweb.asm.tree.analysis.AnalyzerException;
 import org.objectweb.asm.tree.analysis.Frame;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -114,5 +117,17 @@ public class NullAnalyzer extends Analyzer<NullValue> {
             }
         }
         return redundant;
+    }
+
+    public static List<NullCompareInst> findRedundantNullChecks(final InputStream fis)
+            throws IOException, AnalyzerException {
+        final ClassReader cr;
+        cr = new ClassReader(fis);
+
+        final NullClassNode cn = new NullClassNode(Opcodes.ASM5);
+        cr.accept(cn, 0);
+
+        final NullAnalyzer analyzer = new NullAnalyzer(cn);
+        return analyzer.filterRedundant(analyzer.findPotentialCompares(cn));
     }
 }

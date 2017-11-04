@@ -1,7 +1,5 @@
 package org.sam.home.analyzer;
 
-import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.analysis.AnalyzerException;
 
 import java.io.IOException;
@@ -29,7 +27,7 @@ public class Main {
             }
 
             try (final InputStream fis = Files.newInputStream(file, StandardOpenOption.READ)) {
-                final List<NullCompareInst> insts = detect(fis);
+                final List<NullCompareInst> insts = NullAnalyzer.findRedundantNullChecks(fis);
                 System.out.println("In class " + fileName + " found " + insts.size() + " redundant null checks:");
                 for (final NullCompareInst inst: insts) {
                     System.out.println(inst.lineInfo());
@@ -45,16 +43,5 @@ public class Main {
                 continue;
             }
         }
-    }
-
-    public static List<NullCompareInst> detect(final InputStream fis) throws IOException, AnalyzerException {
-        final ClassReader cr;
-        cr = new ClassReader(fis);
-
-        final NullClassNode cn = new NullClassNode(Opcodes.ASM5);
-        cr.accept(cn, 0);
-
-        final NullAnalyzer analyzer = new NullAnalyzer(cn);
-        return analyzer.filterRedundant(analyzer.findPotentialCompares(cn));
     }
 }
