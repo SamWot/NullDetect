@@ -30,7 +30,6 @@ final class AnalyzerTask extends Task<ObservableMap<Path, List<NullCompareInst>>
     private final ReadOnlyObjectWrapper<ObservableMap<Path, List<NullCompareInst>>> analysisResults;
 
 
-
     public AnalyzerTask(final Path analysisDir) {
         this.analysisDir = analysisDir;
         this.analysisResults = new ReadOnlyObjectWrapper<>(
@@ -48,11 +47,16 @@ final class AnalyzerTask extends Task<ObservableMap<Path, List<NullCompareInst>>
         return this.analysisResults.getReadOnlyProperty();
     }
 
+    public final Path getAnalysisDir() {
+        return this.analysisDir;
+    }
+
     /**
      * Walk over analysis directory and analyze each found class-file. Results are placed in analysis results
      * ObservableMap <p>
-     *     @throws IOException if can't find analysis directory
-     *     @throws SecurityException if can't access analysis directory
+     *
+     * @throws IOException       if can't find analysis directory
+     * @throws SecurityException if can't access analysis directory
      */
     @Override
     protected final ObservableMap<Path, List<NullCompareInst>> call() throws IOException, SecurityException {
@@ -87,6 +91,7 @@ final class AnalyzerTask extends Task<ObservableMap<Path, List<NullCompareInst>>
     /**
      * Walk over analysis directory. Filter all class-files.
      * Then for each class-file create new AnalyzerJob and submit it for execution
+     *
      * @return number of jobs created
      */
     private final long createJobs(CompletionService<AnalyzerJob.AnalyzerResult> completionService)
@@ -103,6 +108,7 @@ final class AnalyzerTask extends Task<ObservableMap<Path, List<NullCompareInst>>
     /**
      * Wait for completion of AnalyzerJobs.
      * As individual jobs finish put its results in analysisResults map
+     *
      * @return analysis result for individual job
      */
     private final Optional<AnalyzerJob.AnalyzerResult> waitJob(
