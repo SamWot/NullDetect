@@ -13,7 +13,17 @@ mvn package
 ```
 
 ## Usage
-Analyzing several class-files:
+Run GUI with:
 ```shell session
-java -jar <jar-with-dependencies> <class-filenames>...
+java -jar <jar-with-dependencies>
 ```
+To analyze select directory with class-files and press Start button. You can cancel background analysis by pressing Cancel button or selecting new directory with help of Brwose button.
+
+## ToDo:
+- GUI testing
+- Improve documentation
+- Switch to ASM 6.0
+- Separate CSS from GUI
+- Improve analysis
+- Simplify AnalyzerTask (AnalyzerTask could simply run AnalyzerJobs. Individual AnalyzerJobs could write their results directly into observable concurrent map)
+- Automatic compilation of test resources
