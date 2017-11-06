@@ -10,7 +10,6 @@ import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.analysis.AnalyzerException;
 import org.sam.home.Utils;
-import org.sam.home.analyzer.TypeAnalyzer;
 
 import java.io.IOException;
 import java.nio.file.Path;

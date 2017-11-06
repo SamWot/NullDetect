@@ -6,6 +6,7 @@ Static analyzer for detecting redundant null-comparisons in Java class-files. Fo
 - Maven:
   - [ASM 5.2](http://asm.ow2.org/) to parse class-files and as a base for data-flow analysis
   - JUnit 4.12 for unit testing
+  - TestFX 4.0.8 (Core and JUnit) for GUI testing
 
 ## Build
 ```shell session
@@ -22,8 +23,9 @@ To analyze select directory with class-files and press Start button. You can can
 ## ToDo:
 - GUI testing
 - Improve documentation
-- Switch to ASM 6.0
+- Migrate to ASM 6.0
+- Migrate to JUnit 5 and use dynamic tests for individual test resources
 - Separate CSS from GUI
 - Improve analysis
 - Simplify AnalyzerTask (AnalyzerTask could simply run AnalyzerJobs. Individual AnalyzerJobs could write their results directly into observable concurrent map)
-- Automatic compilation of test resources
+- Add automatic compilation of test resources

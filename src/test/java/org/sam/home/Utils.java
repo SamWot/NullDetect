@@ -63,7 +63,7 @@ public final class Utils {
                     try (final InputStream fis = Files.newInputStream(path, StandardOpenOption.READ)) {
                         return testFunction.apply(fis);
                     } catch (IOException ex) {
-                        Assert.assertTrue(false);
+                        Assert.fail();
                     }
                     return new ArrayList<>();
                 });

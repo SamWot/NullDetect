@@ -13,6 +13,7 @@
         <compiler.version>1.8</compiler.version>
         <compiler.plugin.version>3.7.0</compiler.plugin.version>
         <asm.version>5.2</asm.version>
+        <testfx.version>4.0.8-alpha</testfx.version>
         <junit.version>4.12</junit.version>
     </properties>
 
@@ -60,6 +61,22 @@
             <!-- Debug - so that generics information is not stripped -->
             <artifactId>asm-debug-all</artifactId>
             <version>${asm.version}</version>
+        </dependency>
+
+        <!-- TestFX -->
+        <dependency>
+            <groupId>org.testfx</groupId>
+            <artifactId>testfx-core</artifactId>
+            <version>${testfx.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- TestFX integration with JUnit -->
+        <dependency>
+            <groupId>org.testfx</groupId>
+            <artifactId>testfx-junit</artifactId>
+            <version>${testfx.version}</version>
+            <scope>test</scope>
         </dependency>
 
         <!-- JUnit -->

@@ -7,7 +7,6 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
 import org.sam.home.Utils;
-import org.sam.home.analyzer.NullClassNode;
 
 import java.io.IOException;
 import java.nio.file.Path;

@@ -6,7 +6,6 @@ import org.junit.Test;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
-import org.sam.home.analyzer.NullCompareInst;
 
 public class NullCompareInstTest {
     private ClassNode cn;
