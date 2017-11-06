@@ -12,6 +12,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
 import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -31,27 +32,41 @@ public final class Utils {
         }
     }
 
-    public static void testResources(final Path resourceDir,
-                              final Map<Path, ExpectedExampleResults> expectedResults,
-                              final Function<InputStream, List<NullCompareInst>> testFunction)
+    public static void testResourcesPath(final Path resourceDir,
+                                         final Map<Path, ExpectedExampleResults> expectedResults,
+                                         final Function<Path, List<NullCompareInst>> testFunction)
             throws IOException {
         try (final Stream<Path> stream = Files.walk(resourceDir)) {
             stream.forEach(path -> {
                 if (expectedResults.containsKey(path)) {
                     ExpectedExampleResults expected = expectedResults.get(path);
-                    try (final InputStream fis = Files.newInputStream(path, StandardOpenOption.READ)) {
-                        final List<NullCompareInst> insts = testFunction.apply(fis);
-                        Assert.assertTrue("Testing " + path,
-                                Utils.validateInstList(
-                                        insts,
-                                        expected.sourceFileName,
-                                        expected.lineNumbers));
-                    } catch (IOException ex) {
-                        Assert.assertTrue(false);
-                    }
+                    final List<NullCompareInst> insts = testFunction.apply(path);
+                    Assert.assertTrue("Testing " + path,
+                            Utils.validateInstList(
+                                    insts,
+                                    expected.sourceFileName,
+                                    expected.lineNumbers));
                 }
             });
         }
+    }
+
+    public static void testResources(final Path resourceDir,
+                                     final Map<Path, ExpectedExampleResults> expectedResults,
+                                     final Function<InputStream, List<NullCompareInst>> testFunction)
+            throws IOException {
+
+        testResourcesPath(
+                resourceDir,
+                expectedResults,
+                path -> {
+                    try (final InputStream fis = Files.newInputStream(path, StandardOpenOption.READ)) {
+                        return testFunction.apply(fis);
+                    } catch (IOException ex) {
+                        Assert.assertTrue(false);
+                    }
+                    return new ArrayList<>();
+                });
     }
 
     public static boolean validateInstList(final List<NullCompareInst> insts,
