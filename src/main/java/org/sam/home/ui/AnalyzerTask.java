@@ -9,6 +9,7 @@ import javafx.concurrent.Task;
 import org.sam.home.analyzer.NullCompareInst;
 
 import java.io.IOException;
+import java.io.InterruptedIOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
@@ -23,6 +24,9 @@ import java.util.stream.Stream;
 final class AnalyzerTask extends Task<ObservableMap<Path, List<NullCompareInst>>> {
     // Number of background working threads = all available cores.
     private static final int NUM_THREADS = Runtime.getRuntime().availableProcessors() + 1;
+
+    // File matcher that filters only class-files
+    private static final PathMatcher CLASS_MATCHER = FileSystems.getDefault().getPathMatcher("glob:**.class");
 
     private final Path analysisDir;
     private final ReadOnlyObjectWrapper<ObservableMap<Path, List<NullCompareInst>>> analysisResults;
@@ -63,20 +67,20 @@ final class AnalyzerTask extends Task<ObservableMap<Path, List<NullCompareInst>>
                 new ExecutorCompletionService<>(executor);
 
         try {
-            long filesNumber = createJobs(completionService);
+            long filesNumber = this.createJobs(completionService);
             for (int i = 0; i < filesNumber; i++) {
                 // Check if task was canceled then wait for next job
-                if (isCancelled()) {
+                if (this.isCancelled()) {
                     return this.getAnalysisResults();
                 }
-                Optional<AnalyzerJob.AnalyzerResult> result = waitJob(completionService);
+                Optional<AnalyzerJob.AnalyzerResult> result = this.waitJob(completionService);
                 result.ifPresent(res -> Platform.runLater(
                         () -> this.getAnalysisResults().put(res.getFile(), res.getRedundantInsts())
                 ));
-                updateProgress(i + 1, filesNumber);
+                this.updateProgress(i + 1, filesNumber);
             }
         } catch (InterruptedException ex) {
-            // Task was canceled during waiting for AnalyzerJob
+            // Task was canceled
             return this.getAnalysisResults();
         } finally {
             // Shutdown executor to guaranty release of resources
@@ -96,6 +100,8 @@ final class AnalyzerTask extends Task<ObservableMap<Path, List<NullCompareInst>>
             throws IOException, SecurityException {
         ClassFileVisitor classVisitor = new ClassFileVisitor(completionService);
         Files.walkFileTree(this.analysisDir, classVisitor);
+        if (this.isCancelled())
+            return 0;
         return classVisitor.getFilesCount();
     }
 
@@ -127,10 +133,7 @@ final class AnalyzerTask extends Task<ObservableMap<Path, List<NullCompareInst>>
     /**
      * FileVisitor that walks over all class-files in directory and creates new AnalyzerJob for each
      */
-    private static class ClassFileVisitor implements FileVisitor<Path> {
-        // File matcher that filters only class-files
-        private static final PathMatcher CLASS_MATCHER = FileSystems.getDefault().getPathMatcher("glob:**.class");
-
+    private class ClassFileVisitor implements FileVisitor<Path> {
         private long filesCount = 0;
         private final CompletionService<AnalyzerJob.AnalyzerResult> completionService;
 
@@ -140,35 +143,43 @@ final class AnalyzerTask extends Task<ObservableMap<Path, List<NullCompareInst>>
 
         @Override
         public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+            if (AnalyzerTask.this.isCancelled())
+                return FileVisitResult.TERMINATE;
+
             if (!attrs.isRegularFile())
                 return FileVisitResult.CONTINUE;
 
             if (!CLASS_MATCHER.matches(file))
                 return FileVisitResult.CONTINUE;
 
-            completionService.submit(new AnalyzerJob(file));
-            filesCount++;
+            this.completionService.submit(new AnalyzerJob(file));
+            this.filesCount++;
             return FileVisitResult.CONTINUE;
         }
 
         @Override
         public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
-            // Ignore exceptions
+            if (AnalyzerTask.this.isCancelled())
+                return FileVisitResult.TERMINATE;
             return FileVisitResult.CONTINUE;
         }
 
         @Override
         public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+            if (AnalyzerTask.this.isCancelled())
+                return FileVisitResult.TERMINATE;
             return FileVisitResult.CONTINUE;
         }
 
         @Override
         public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+            if (AnalyzerTask.this.isCancelled())
+                return FileVisitResult.TERMINATE;
             return FileVisitResult.CONTINUE;
         }
 
         public long getFilesCount() {
-            return filesCount;
+            return this.filesCount;
         }
     }
 }

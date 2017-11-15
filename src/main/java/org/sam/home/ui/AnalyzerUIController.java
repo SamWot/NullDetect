@@ -97,7 +97,7 @@ public class AnalyzerUIController {
                     }
                 }
         );
-        finishTaskUI();
+        this.finishTaskUI();
         this.currentTask = Optional.empty();
     }
 
@@ -111,7 +111,7 @@ public class AnalyzerUIController {
         final File dir = dirChooser.showDialog(this.browseButton.getScene().getWindow());
         if (dir != null) {
             this.dirField.setText(dir.getAbsolutePath());
-            cancelTask();
+            this.cancelTask();
         }
     }
 
@@ -125,10 +125,10 @@ public class AnalyzerUIController {
             throw new IllegalArgumentException("Wrong worker state event. Only finish states allowed.");
         }
 
-        setStatusText(event);
+        this.setStatusText(event);
         this.currentTask = Optional.empty();
 
-        finishTaskUI();
+        this.finishTaskUI();
     }
 
     /**
