@@ -10,6 +10,7 @@ import org.sam.home.analyzer.NullCompareInst;
 
 import java.io.IOException;
 import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.*;
@@ -22,9 +23,6 @@ import java.util.stream.Stream;
 final class AnalyzerTask extends Task<ObservableMap<Path, List<NullCompareInst>>> {
     // Number of background working threads = all available cores.
     private static final int NUM_THREADS = Runtime.getRuntime().availableProcessors() + 1;
-
-    // File matcher that filters only class-files
-    private static final PathMatcher CLASS_MATCHER = FileSystems.getDefault().getPathMatcher("glob:**.class");
 
     private final Path analysisDir;
     private final ReadOnlyObjectWrapper<ObservableMap<Path, List<NullCompareInst>>> analysisResults;
@@ -96,13 +94,9 @@ final class AnalyzerTask extends Task<ObservableMap<Path, List<NullCompareInst>>
      */
     private final long createJobs(CompletionService<AnalyzerJob.AnalyzerResult> completionService)
             throws IOException, SecurityException {
-        try (final Stream<Path> dirStream = Files.walk(this.analysisDir)) {
-            return dirStream
-                    .filter(path -> CLASS_MATCHER.matches(path))
-                    .filter(path -> Files.isRegularFile(path, LinkOption.NOFOLLOW_LINKS))
-                    .peek(path -> completionService.submit(new AnalyzerJob(path)))
-                    .count();
-        }
+        ClassFileVisitor classVisitor = new ClassFileVisitor(completionService);
+        Files.walkFileTree(this.analysisDir, classVisitor);
+        return classVisitor.getFilesCount();
     }
 
     /**
@@ -128,5 +122,53 @@ final class AnalyzerTask extends Task<ObservableMap<Path, List<NullCompareInst>>
             }
         }
         return Optional.empty();
+    }
+
+    /**
+     * FileVisitor that walks over all class-files in directory and creates new AnalyzerJob for each
+     */
+    private static class ClassFileVisitor implements FileVisitor<Path> {
+        // File matcher that filters only class-files
+        private static final PathMatcher CLASS_MATCHER = FileSystems.getDefault().getPathMatcher("glob:**.class");
+
+        private long filesCount = 0;
+        private final CompletionService<AnalyzerJob.AnalyzerResult> completionService;
+
+        public ClassFileVisitor(CompletionService<AnalyzerJob.AnalyzerResult> completionService) {
+            this.completionService = completionService;
+        }
+
+        @Override
+        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+            if (!attrs.isRegularFile())
+                return FileVisitResult.CONTINUE;
+
+            if (!CLASS_MATCHER.matches(file))
+                return FileVisitResult.CONTINUE;
+
+            completionService.submit(new AnalyzerJob(file));
+            filesCount++;
+            return FileVisitResult.CONTINUE;
+        }
+
+        @Override
+        public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
+            // Ignore exceptions
+            return FileVisitResult.CONTINUE;
+        }
+
+        @Override
+        public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+            return FileVisitResult.CONTINUE;
+        }
+
+        @Override
+        public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+            return FileVisitResult.CONTINUE;
+        }
+
+        public long getFilesCount() {
+            return filesCount;
+        }
     }
 }
