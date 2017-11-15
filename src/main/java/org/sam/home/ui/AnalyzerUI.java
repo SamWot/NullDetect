@@ -14,9 +14,9 @@ public class AnalyzerUI extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
         FXMLLoader loader = new FXMLLoader(getClass().getResource(ANALYZER_FXML));
+        Pane root = loader.load();
         this.controller = loader.<AnalyzerUIController>getController();
 
-        Pane root = loader.load();
         Scene primaryScene = new Scene(root);
 
         primaryStage.setTitle("Null Detect");
@@ -26,8 +26,8 @@ public class AnalyzerUI extends Application {
 
     @Override
     public void stop() throws Exception {
-        super.stop();
         this.controller.cancelTask();
+        super.stop();
     }
 
     public static void main(String[] args) {
