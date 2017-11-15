@@ -87,7 +87,7 @@ public class AnalyzerUIController {
     /**
      * Cancel current task
      */
-    private void cancelTask() {
+    public void cancelTask() {
         this.currentTask.ifPresent(
                 task -> {
                     if (task.getState() != Task.State.SUCCEEDED
@@ -182,6 +182,6 @@ public class AnalyzerUIController {
 
     @FXML
     private void cancelButtonClicked(ActionEvent event) {
-        cancelTask();
+        this.cancelTask();
     }
 }
